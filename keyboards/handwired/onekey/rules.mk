@@ -14,7 +14,7 @@ MCU = atmega32u4
 #     does not *change* the processor frequency - it should merely be updated to
 #     reflect the processor speed set externally so that the code can use accurate
 #     software delays.
-F_CPU = 16000000
+F_CPU = 8000000
 
 
 #
@@ -63,3 +63,5 @@ COMMAND_ENABLE ?= yes    # Commands for debug and configuration
 ifndef QUANTUM_DIR
 	include ../../../Makefile
 endif
+
+ADAFRUIT_BLE_ENABLE=yes
