@@ -9,11 +9,15 @@
 (def keyswitch-width 14.4)
 
 (def sa-profile-key-height 12.7)
+(def choc-cap-width 17)
+(def space-between-caps 3)
 
-(def plate-thickness 4)
-(def hole-thickness 4.2)
+(def plate-thickness 6)
+(def hole-thickness (+ plate-thickness 0.2)) ;just needs to be bigger than plate-thickness
 (def mount-width (+ keyswitch-width 3))
 (def mount-height (+ keyswitch-height 3))
+
+(def column-offsets [0 2 8 1 -4 -5])
 
 (def old-single-plate
   (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
@@ -38,13 +42,12 @@
                 (mirror [0 1 0])))))
 
 (def single-hole
-  (cube keyswitch-width keyswitch-width hole-thickness)
-  )
+  (cube keyswitch-height keyswitch-width hole-thickness))
 
-(def solid-plate
-  (cube 17 17 plate-thickness))
+(def single-solid-plate
+  (cube (+ choc-cap-width space-between-caps) (+ choc-cap-width space-between-caps) plate-thickness))
 
-(def single-plate
+(def single-plate-with-nubs
   (let [side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
                       (rotate (/ π 2) [1 0 0])
                       (translate [(+ (/ keyswitch-width 2)) 0 -1])
@@ -57,11 +60,27 @@
                               (mirror [1 0 0])
                               (mirror [0 1 0])))]
 
-    (union (difference solid-plate
+    (union (difference single-solid-plate
                        single-hole)
            side-nubs)
     ))
 
+(def solid-plate
+  (cube 35 17 plate-thickness))
+
+(def single-hole-spaced
+  (difference single-solid-plate
+              single-hole))
+
+(def column-plate
+  (union single-hole-spaced
+         (translate [(+ choc-cap-width space-between-caps) 0 0] single-hole-spaced)
+         (translate [(- 0 (+ choc-cap-width space-between-caps)) 0 0] single-hole-spaced)))
+
+(def left-fingers-plate
+  (union (map-indexed #(translate [%2 (* % (+ choc-cap-width space-between-caps)) 0] single-hole-spaced) column-offsets)))
+  
+
 
 (spit "output/plate.scad"
-      (write-scad single-plate))
+      (write-scad left-fingers-plate))
