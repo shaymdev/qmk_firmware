@@ -5,82 +5,69 @@
             [unicode-math.core :refer :all])
   (:gen-class))
 
+(def key-count-y 3)
+(def column-offsets [0 2 8 1 -7 -8]) ;the number of values in this vector determin key-count-x or the number of keys in the horizontal "row"
+
 (def keyswitch-height 14.4) ;; Was 14.1, then 14.25
 (def keyswitch-width 14.4)
 
-(def sa-profile-key-height 12.7)
-(def choc-cap-width 17)
-(def space-between-caps 3)
+(def choc-cap-height 17)
+(def choc-cap-width 18)
+(def space-between-caps 1.5)
 
 (def plate-thickness 6)
 (def hole-thickness (+ plate-thickness 0.2)) ;just needs to be bigger than plate-thickness
-(def mount-width (+ keyswitch-width 3))
-(def mount-height (+ keyswitch-height 3))
 
-(def column-offsets [0 2 8 1 -4 -5])
 
-(def old-single-plate
-  (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
-                      (translate [0
-                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
-                                  (/ plate-thickness 2)]))
-        left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                       (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                   0
-                                   (/ plate-thickness 2)]))
-        side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
-                      (rotate (/ π 2) [1 0 0])
-                      (translate [(+ (/ keyswitch-width 2)) 0 1])
-                      (hull (->> (cube 1.5 2.75 plate-thickness)
-                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                             0
-                                             (/ plate-thickness 2)]))))
-        plate-half (union top-wall left-wall (with-fn 100 side-nub))]
-    (union plate-half
-           (->> plate-half
-                (mirror [1 0 0])
-                (mirror [0 1 0])))))
+;---------------------------------------------------
 
 (def single-hole
   (cube keyswitch-height keyswitch-width hole-thickness))
 
 (def single-solid-plate
-  (cube (+ choc-cap-width space-between-caps) (+ choc-cap-width space-between-caps) plate-thickness))
-
-(def single-plate-with-nubs
-  (let [side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
-                      (rotate (/ π 2) [1 0 0])
-                      (translate [(+ (/ keyswitch-width 2)) 0 -1])
-                      (hull (->> (cube 1 2.75 plate-thickness)
-                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                             0
-                                             0]))))
-        side-nubs (union (with-fn 100 side-nub)
-                         (->> (with-fn 100 side-nub)
-                              (mirror [1 0 0])
-                              (mirror [0 1 0])))]
-
-    (union (difference single-solid-plate
-                       single-hole)
-           side-nubs)
-    ))
-
-(def solid-plate
-  (cube 35 17 plate-thickness))
+  (cube (+ choc-cap-height space-between-caps) (+ choc-cap-width space-between-caps) plate-thickness))
 
 (def single-hole-spaced
   (difference single-solid-plate
               single-hole))
 
-(def column-plate
-  (union single-hole-spaced
-         (translate [(+ choc-cap-width space-between-caps) 0 0] single-hole-spaced)
-         (translate [(- 0 (+ choc-cap-width space-between-caps)) 0 0] single-hole-spaced)))
+(defn duplicate-in-column
+  [thing key-index mapval]
+  (translate [(* key-index (+ choc-cap-height space-between-caps)) 0 0] thing))
 
-(def left-fingers-plate
-  (union (map-indexed #(translate [%2 (* % (+ choc-cap-width space-between-caps)) 0] single-hole-spaced) column-offsets)))
-  
+(defn column-plate
+  [key-count]
+  (union (map-indexed (partial duplicate-in-column single-hole-spaced) (repeat key-count 0))))
+
+(defn translate-thing-by-offset
+  [thing column-index offset]
+  (translate [offset (* column-index (+ choc-cap-width space-between-caps)) 0] thing))
+
+
+;---------------------------------------------------
+
+(def left-fingers-homerow
+  (union (map-indexed (partial translate-thing-by-offset single-hole-spaced) column-offsets)))
+
+(def left-fingers
+  (union (map-indexed (partial translate-thing-by-offset (column-plate key-count-y)) column-offsets)))
+
+(def left-fingers-off-center
+  (translate [0 40 0 ]
+             left-fingers))
+
+(def right-fingers-off-center
+  (mirror [0 1 0] left-fingers-off-center))
+
+(def joined-board
+  (union (map #(rotate %2 [0 0 1] %)
+              [right-fingers-off-center  left-fingers-off-center]
+              [(/ π 6) (* -1 (/ π 6)) #_(/ π (/ 5 6))]))) ; using radians, unicode for pi is 03c0,  linux ctrl+shift+u then unicod  or windows alt code is 227
+
+(def key-space-test
+  (union (map-indexed (partial translate-thing-by-offset (column-plate 2)) [0 0])))
 
 
 (spit "output/plate.scad"
-      (write-scad left-fingers-plate))
+      (write-scad key-space-test))
+      ;(write-scad joined-board))
