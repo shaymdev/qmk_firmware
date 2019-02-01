@@ -36,8 +36,8 @@
   (translate [0 (* key-index (+ choc-cap-height space-between-caps)) 0] thing))
 
 (defn column-plate
-  [key-count]
-  (union (map-indexed (partial duplicate-in-column single-hole-spaced) (repeat key-count 0))))
+  [thing key-count]
+  (union (map-indexed (partial duplicate-in-column thing) (repeat key-count 0))))
 
 (defn translate-thing-by-offset
   [thing column-index offset]
@@ -63,7 +63,9 @@
        ))
 
 (def right-thumb 
-  (union (map-indexed (partial translate-and-rotate-thing single-hole-spaced) thumb-offsets)))
+  (difference
+    (hull (map-indexed (partial translate-and-rotate-thing single-solid-plate) thumb-offsets))
+    (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets)))
 
 (def right-thumb-translation [(* 1 (+ choc-cap-width space-between-caps))
                               (* -1.2 (+ choc-cap-height space-between-caps))
@@ -76,10 +78,25 @@
   (union (map-indexed (partial translate-thing-by-offset single-hole-spaced) column-offsets)))
 
 (def right-fingers
-  (union (map-indexed (partial translate-thing-by-offset (column-plate key-count-y)) column-offsets)))
+  (difference 
+    (union (map-indexed (partial translate-thing-by-offset (column-plate single-solid-plate key-count-y)) column-offsets))
+    (map-indexed (partial translate-thing-by-offset (column-plate single-hole key-count-y)) column-offsets)))
 
 (def right-hand
   (union right-fingers (translate right-thumb-translation right-thumb)))
+
+(def right-plate
+  (hull (translate right-thumb-translation  (map-indexed (partial translate-and-rotate-thing single-solid-plate) thumb-offsets))
+        (union (map-indexed (partial translate-thing-by-offset (column-plate single-solid-plate key-count-y)) column-offsets))
+        ))
+
+(def right-holes
+  (union
+   (translate right-thumb-translation (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets))
+    (map-indexed (partial translate-thing-by-offset (column-plate single-hole key-count-y)) column-offsets)))
+
+(def right-hand-hulled
+  (difference right-plate right-holes))
 
 (def right-fingers-off-center
   (translate [40 0 0 ]
@@ -94,9 +111,10 @@
               [(* -1 (/ π 6)) (* 1 (/ π 6))]))) ; using radians, unicode for pi is 03c0,  linux ctrl+shift+u then unicod  or windows alt code is 227
 
 (def key-space-test
-  (union (map-indexed (partial translate-thing-by-offset (column-plate 2)) [0 0])))
+  (union (map-indexed (partial translate-thing-by-offset (column-plate single-hole-spaced 2)) [0 0])))
 
 
 (spit "output/plate.scad"
-      (write-scad right-thumb))
+      (write-scad right-hand-hulled))
+      ;(write-scad right-thumb))
       ;(write-scad joined-board))
