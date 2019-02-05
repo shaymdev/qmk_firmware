@@ -47,12 +47,20 @@
 ;---------------------------------------------------
 ; THUMB CLUSTER
 ;---------------------------------------------------
-(def thumb-offsets ;probably not parameterizing...just manually fiddling :-(
+(def thumb-offsets-not-touching ;probably not parameterizing...just manually fiddling :-(
   [{:x -38 :y -30 :rotation 65}
    {:x -23 :y -11 :rotation 35}
    {:x -1.5 :y -2 :rotation 10}
    {:x 19.5 :y 0 :rotation 0}
    {:x 41.25 :y -3 :rotation -15}
+   ])
+
+(def thumb-offsets ;probably not parameterizing...just manually fiddling :-(
+  [{:x -37 :y -28 :rotation 65}
+   {:x -22 :y -10.5 :rotation 35}
+   {:x -1.25 :y -1.75 :rotation 10}
+   {:x 19.5 :y 0 :rotation 0}
+   {:x 40.75 :y -2.75 :rotation -15}
    ])
 
 (defn translate-and-rotate-thing
@@ -62,10 +70,19 @@
        (translate [(offset :x ) (offset :y) 0])
        ))
 
-(def right-thumb 
+(def right-thumb-hulled
   (difference
     (hull (map-indexed (partial translate-and-rotate-thing single-solid-plate) thumb-offsets))
     (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets)))
+
+(def right-thumb
+  (difference
+    (union (map-indexed (partial translate-and-rotate-thing single-solid-plate) thumb-offsets))
+    (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets)))
+
+(def right-thumb-test
+  (difference right-thumb-hulled
+              (translate [25 -80 0] (binding [*fn* 200 ](cylinder 70 10))))) ; binding the fn for the number of segments in the cylinder
 
 (def right-thumb-translation [(* 1 (+ choc-cap-width space-between-caps))
                               (* -1.2 (+ choc-cap-height space-between-caps))
@@ -85,18 +102,18 @@
 (def right-hand
   (union right-fingers (translate right-thumb-translation right-thumb)))
 
-(def right-plate
+(def right-plate-hulled
   (hull (translate right-thumb-translation  (map-indexed (partial translate-and-rotate-thing single-solid-plate) thumb-offsets))
         (union (map-indexed (partial translate-thing-by-offset (column-plate single-solid-plate key-count-y)) column-offsets))
         ))
 
 (def right-holes
   (union
-   (translate right-thumb-translation (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets))
+    (translate right-thumb-translation (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets))
     (map-indexed (partial translate-thing-by-offset (column-plate single-hole key-count-y)) column-offsets)))
 
 (def right-hand-hulled
-  (difference right-plate right-holes))
+  (difference right-plate-hulled right-holes))
 
 (def right-fingers-off-center
   (translate [40 0 0 ]
@@ -115,6 +132,6 @@
 
 
 (spit "output/plate.scad"
-      (write-scad right-hand-hulled))
-      ;(write-scad right-thumb))
-      ;(write-scad joined-board))
+      ;(write-scad right-hand-hulled))
+      (write-scad right-thumb-test))
+;(write-scad joined-board))
