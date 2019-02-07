@@ -15,7 +15,7 @@
 (def choc-cap-width 18)
 (def space-between-caps 1.5)
 
-(def plate-thickness 6)
+(def plate-thickness 5.5)
 (def hole-thickness (+ plate-thickness 0.2)) ;just needs to be bigger than plate-thickness
 
 
@@ -60,7 +60,7 @@
    {:x -22 :y -10.5 :rotation 35}
    {:x -1.25 :y -1.75 :rotation 10}
    {:x 19.5 :y 0 :rotation 0}
-   {:x 40.75 :y -2.75 :rotation -15}
+   {:x 41.5 :y -6 :rotation -30}
    ])
 
 (defn translate-and-rotate-thing
@@ -80,12 +80,15 @@
     (union (map-indexed (partial translate-and-rotate-thing single-solid-plate) thumb-offsets))
     (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets)))
 
+(def right-thumb-carve
+  (translate [15 -60 0] (binding [*fn* 200 ](cylinder 50 10)))) ; binding the fn for the number of segments in the cylinder
+
 (def right-thumb-test
   (difference right-thumb-hulled
-              (translate [25 -80 0] (binding [*fn* 200 ](cylinder 70 10))))) ; binding the fn for the number of segments in the cylinder
+              right-thumb-carve)) ; binding the fn for the number of segments in the cylinder
 
 (def right-thumb-translation [(* 1 (+ choc-cap-width space-between-caps))
-                              (* -1.2 (+ choc-cap-height space-between-caps))
+                              (* -0.9 (+ choc-cap-height space-between-caps))
                               0])
 
 
@@ -107,13 +110,19 @@
         (union (map-indexed (partial translate-thing-by-offset (column-plate single-solid-plate key-count-y)) column-offsets))
         ))
 
+(def right-plate-carved-hull
+  (difference right-plate-hulled
+              (translate right-thumb-translation right-thumb-carve)
+              (translate [-210 38 0] (binding [*fn* 200 ](cylinder 200 10))) ; binding the fn for the number of segments in the cylinder
+              (translate [100 -62 0] (binding [*fn* 200 ](cylinder 45 10))))) ; binding the fn for the number of segments in the cylinder
+
 (def right-holes
   (union
     (translate right-thumb-translation (map-indexed (partial translate-and-rotate-thing single-hole) thumb-offsets))
     (map-indexed (partial translate-thing-by-offset (column-plate single-hole key-count-y)) column-offsets)))
 
 (def right-hand-hulled
-  (difference right-plate-hulled right-holes))
+  (difference right-plate-carved-hull right-holes))
 
 (def right-fingers-off-center
   (translate [40 0 0 ]
@@ -132,6 +141,7 @@
 
 
 (spit "output/plate.scad"
-      ;(write-scad right-hand-hulled))
-      (write-scad right-thumb-test))
-;(write-scad joined-board))
+      (write-scad right-hand-hulled))
+      ;(write-scad right-thumb-test))
+      ;(write-scad right-thumb))
+      ;(write-scad joined-board))
