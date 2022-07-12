@@ -18,7 +18,7 @@
 #include QMK_KEYBOARD_H
 
 
-enum santoku_layers 
+enum santoku_layers
 {
 	_DVORAK,
 	_LOWER,
@@ -76,10 +76,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 			//Consider miryoku style modifiers... homerow left->right super(aka gui), alt, ctrl, shift
 			KC_ESC,  KC_QUOT, KC_COMM, KC_DOT,	  KC_P,    KC_Y,         KC_F,    KC_G,   KC_C,      KC_R,   KC_L,    KC_SLSH, \
 			KC_TAB, GUI_T(KC_A), ALT_T(KC_O), KC_E, KC_U,  KC_I,         KC_D,    KC_H,   KC_T,      KC_N,   KC_S,    KC_MINS, \
-//MIRYOKU KC_TAB, GUI_T(KC_A), ALT_T(KC_O), CTL_T(KC_E), SFT_T(KC_U), KC_I,         KC_D, SFT_T(KC_H), CTL_T(KC_T), ALT_T(KC_N), GUI_T(KC_S),    KC_MINS, !ADD SLASH CHAR!
 			KC_EQL,  KC_SCLN, KC_Q,    KC_J,  	  KC_K,    KC_X,         KC_B,    KC_M,   KC_W,      KC_V,   KC_Z,    KC_BSLS, \
 			 						   TT(LOWER), KC_LSFT, KC_LCTL,      KC_BSPC, ALT_T(KC_SPC), TT(RAISE)
-//!MIRYOKU* XXXXXXX, XXXXXXX, XXXXXXX, TT(LOWER), KC_LSFT, KC_ENT,       KC_BSPC, KC_SPC, TT(RAISE), XXXXXX, XXXXXXX, XXXXXXX 
+//!MIRYOKU* XXXXXXX, XXXXXXX, XXXXXXX, TT(LOWER), KC_LSFT, KC_ENT,       KC_BSPC, KC_SPC, TT(RAISE), XXXXXX, XXXXXXX, XXXXXXX
 			),
 
 	[_QWERTY] = LAYOUT( \
@@ -157,7 +156,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 				// Exit alt tab before treating normally the keycode
 				SEND_STRING(SS_UP(X_LALT));
 				in_alttab = false;
-				return false;   
+				return false;
 			}
 
 	}
