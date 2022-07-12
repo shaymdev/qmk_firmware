@@ -129,8 +129,8 @@
 #endif
 
 
-#ifdef PS2_USE_ART
-//#define PS2_MOUSE_USE_REMOTE_MODE
+#ifdef PS2_USE_USART
+#define PS2_MOUSE_USE_REMOTE_MODE
 
 #define PS2_CLOCK_PORT  PORTD
 #define PS2_CLOCK_PIN   PIND
