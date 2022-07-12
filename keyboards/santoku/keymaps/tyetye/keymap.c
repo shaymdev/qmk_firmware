@@ -98,7 +98,7 @@ static bool in_alttab = false; // does an ALT-TAB, for windows cycling, without 
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-	[_QWERTY] = { 
+	[_QWERTY] = {
 		{KC_TAB,              KC_Q,              KC_W,     KC_E,    KC_R,     KC_T,   KC_Y,         KC_U,       KC_I,    KC_O,   KC_P,                  KC_BSLS },
 		{MT(MOD_LGUI,KC_ESC), MT(MOD_LCTL,KC_A), KC_S,     KC_D,    KC_F,     KC_G,   KC_H,         KC_J,       KC_K,    KC_L,   MT(MOD_RCTL,KC_SCLN),  MT(MOD_RGUI,KC_QUOT)},
 		{KC_LSFT,             MT(MOD_LALT,KC_Z), KC_X,     KC_C,    KC_V,     KC_B,   KC_N,         KC_M,       KC_COMM, KC_DOT, MT(MOD_RALT,KC_SLSH),  KC_RSFT },
@@ -164,7 +164,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 				if (timer_elapsed(key_timer) > 250) {
 						SEND_STRING(SS_TAP(X_G));
     					return false;
-    				} else { 
+    				} else {
                         // if key was tapped
 						SEND_STRING(SS_TAP(X_B));
     					return false;
@@ -211,7 +211,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 				// Exit alt tab before treating normally the keycode
 				SEND_STRING(SS_UP(X_LALT));
 				in_alttab = false;
-				return false;   
+				return false;
 			}
 
 	}
@@ -219,7 +219,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 #ifdef OLED_ENABLE
-void oled_task_user(void) {
+bool oled_task_user(void) {
 	// Vanity Text
 	static bool show_vanity_text = true;
 	if (show_vanity_text) {
@@ -288,6 +288,8 @@ void oled_task_user(void) {
 	oled_write_P(led_state.caps_lock ? PSTR("CAP ") : PSTR("    "), false);
 	oled_write_P(led_state.scroll_lock ? PSTR("SCR ") : PSTR("    "), false);
 	*/
+
+	return false;
 }
 #endif
 

@@ -175,7 +175,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 
 //#ifdef OLED_DRIVER_ENABLE
 #ifdef OLED_ENABLE
-void oled_task_user(void) {
+bool oled_task_user(void) {
 	// Vanity Text
 	static bool show_vanity_text = true;
 	if (show_vanity_text) {
@@ -251,6 +251,8 @@ void oled_task_user(void) {
 	oled_write_P(led_state.caps_lock ? PSTR("CAP ") : PSTR("    "), false);
 	oled_write_P(led_state.scroll_lock ? PSTR("SCR ") : PSTR("    "), false);
 	*/
+
+	return false;
 }
 #endif
 

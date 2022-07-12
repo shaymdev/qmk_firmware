@@ -31,7 +31,7 @@ bool encoder_update_kb(uint8_t index, bool clockwise) {
 }
 
 #ifdef OLED_ENABLE
-__attribute__((weak)) void oled_task_user(void) {
+__attribute__((weak)) bool oled_task_kb(void) {
 	// Vanity Text
 	static bool show_vanity_text = true;
 	if (show_vanity_text) {
@@ -57,7 +57,6 @@ __attribute__((weak)) void oled_task_user(void) {
 			oled_write(wpm_display, false);
 		}
 #endif
-
 	}
 
 	// Host Keyboard Layer Status
@@ -101,5 +100,7 @@ __attribute__((weak)) void oled_task_user(void) {
 		default:
 			oled_write_ln_P(PSTR("Undefined"), false);
 	}
+
+	return false;
 }
 #endif

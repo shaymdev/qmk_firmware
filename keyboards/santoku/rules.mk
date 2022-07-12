@@ -14,6 +14,7 @@ NKRO_ENABLE = yes       # USB Nkey Rollover
 # Options that are specific to current build of Santoku
 WPM_ENABLE = yes        # Enable Words Per Minute Count for OLED
 POINTING_DEVICE_ENABLE = yes # used for the scroll wheel
+POINTING_DEVICE_DRIVER = custom
 PS2_MOUSE_ENABLE = yes
 PS2_USE_USART = yes
 PS2_USE_INT = no
